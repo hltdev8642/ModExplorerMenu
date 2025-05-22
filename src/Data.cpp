@@ -223,6 +223,9 @@ namespace Modex
 
 				if (_itemListModFormTypeMap[mod].scroll == false)
 					_itemListModFormTypeMap[mod].scroll = form->GetFormType() == RE::FormType::Scroll;
+
+				if (_itemListModFormTypeMap[mod].spell == false)
+					_itemListModFormTypeMap[mod].spell = form->GetFormType() == RE::FormType::Spell;
 			}
 		}
 	}
@@ -357,6 +360,7 @@ namespace Modex
 			CacheItems<RE::TESKey>(dataHandler);
 			CacheItems<RE::ScrollItem>(dataHandler);
 			CacheItems<RE::TESSoulGem>(dataHandler);
+			CacheItems<RE::SpellItem>(dataHandler);  // Added for SPEL items
 		}
 	}
 

@@ -17,6 +17,7 @@ namespace Modex
 		// Commands
 		static void AddItem(std::string a_itemFormID, int a_count = 1);
 		static void AddItemEx(RE::FormID a_itemFormID, int a_count = 1, bool a_equip = false);
+		static void AddSpell(RE::FormID a_spellFormID);
 		static void ClearEquipped();
 		static void ClearInventory();
 		static void ReadBook(std::string a_bookFormID);

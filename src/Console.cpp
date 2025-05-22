@@ -427,6 +427,15 @@ namespace Modex
 		}
 	}
 
+	// Add a spell to the player's spell list
+	// @param a_spellFormID: Base Form ID of the spell.
+	void Console::AddSpell(RE::FormID a_spellFormID)
+	{
+		if (IsPlayerLoaded()) [[likely]] {
+			AddToQueue("player.addspell " + std::format("{:08x}", a_spellFormID));
+		}
+	}
+
 	// Add a book, and open it.
 	void Console::ReadBook(std::string a_formid)
 	{

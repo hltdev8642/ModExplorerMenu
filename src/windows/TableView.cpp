@@ -48,7 +48,17 @@ namespace Modex
 		while (selectionStorage.GetNextSelectedItem(&it, &id)) {
 			if (id < std::ssize(tableList) && id >= 0) {
 				const auto& item = tableList[id];
-				Console::AddItem(item->GetFormID().c_str(), a_count);
+
+				// Special handling for spell items
+				if constexpr (std::is_same_v<DataType, ItemData>) {
+					if (item->GetFormType() == RE::FormType::Spell) {
+						Console::AddSpell(item->GetBaseForm());
+					} else {
+						Console::AddItem(item->GetFormID().c_str(), a_count);
+					}
+				} else {
+					Console::AddItem(item->GetFormID().c_str(), a_count);
+				}
 			}
 		}
 
@@ -109,7 +119,16 @@ namespace Modex
 		}
 
 		for (auto& item : this->tableList) {
-			Console::AddItem(item->GetFormID().c_str(), 1);
+			// Special handling for spell items
+			if constexpr (std::is_same_v<DataType, ItemData>) {
+				if (item->GetFormType() == RE::FormType::Spell) {
+					Console::AddSpell(item->GetBaseForm());
+				} else {
+					Console::AddItem(item->GetFormID().c_str(), 1);
+				}
+			} else {
+				Console::AddItem(item->GetFormID().c_str(), 1);
+			}
 		}
 
 		Console::StartProcessThread();
@@ -151,6 +170,7 @@ namespace Modex
 			RE::FormType::KeyMaster,
 			RE::FormType::Misc,
 			RE::FormType::Scroll,
+			RE::FormType::Spell,
 			RE::FormType::Weapon
 		};
 
@@ -2625,7 +2645,11 @@ namespace Modex
 							if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 								if constexpr (std::is_same_v<DataType, ItemData>) {
 									if (this->clickToAdd != nullptr) {
-										if (*this->clickToAdd == true) {
+										// Special handling for spell items
+										if (item_data->GetFormType() == RE::FormType::Spell) {
+											Console::AddSpell(item_data->GetBaseForm());
+											Console::StartProcessThread();
+										} else if (*this->clickToAdd == true) {
 											Console::AddItem(item_data->GetFormID().c_str(), click_amount);
 											Console::StartProcessThread();
 										} else {
@@ -2821,6 +2845,35 @@ namespace Modex
 										Console::ReadBook(itemData->GetFormID());
 										Console::StartProcessThread();
 										Menu::GetSingleton()->Close();
+									}
+								}
+
+								if (itemData->GetFormType() == RE::FormType::Spell) {
+									ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+
+									if (ImGui::MenuItem("Learn Spell")) {
+										if (selectionStorage.Size == 0) {
+											Console::AddSpell(item_data->GetBaseForm());
+											Console::StartProcessThread();
+										} else {
+											if (item_data == itemPreview && !is_item_selected) {
+												Console::AddSpell(item_data->GetBaseForm());
+												Console::StartProcessThread();
+											} else {
+												void* it = NULL;
+												ImGuiID id = 0;
+
+												while (selectionStorage.GetNextSelectedItem(&it, &id)) {
+													if (id < tableList.size() && id >= 0) {
+														const auto& item = tableList[id];
+														Console::AddSpell(item->GetBaseForm());
+													}
+												}
+
+												Console::StartProcessThread();
+												this->selectionStorage.Clear();
+											}
+										}
 									}
 								}
 

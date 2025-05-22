@@ -156,6 +156,8 @@ namespace Modex
 			return _itemListModFormTypeMap[a_plugin].ingredient;
 		case RE::FormType::Scroll:
 			return _itemListModFormTypeMap[a_plugin].scroll;
+		case RE::FormType::Spell:
+			return _itemListModFormTypeMap[a_plugin].spell;
 		case RE::FormType::SoulGem:
 			return _itemListModFormTypeMap[a_plugin].misc;
 		case RE::FormType::Static:
@@ -255,6 +257,11 @@ namespace Modex
 					break;
 				case RE::FormType::Scroll:
 					if (pluginFormTypeFlag.scroll) {
+						modList.push_back(modName);
+					}
+					break;
+				case RE::FormType::Spell:
+					if (pluginFormTypeFlag.spell) {
 						modList.push_back(modName);
 					}
 					break;

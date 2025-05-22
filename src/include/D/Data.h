@@ -39,6 +39,7 @@ namespace Modex
 			bool 	book 			= false;
 			bool 	weapon 			= false;
 			bool 	scroll 			= false;
+			bool 	spell 			= false;  // Added for SPEL items
 			bool 	npc 			= false;
 			bool 	staticObject 	= false;
 			bool 	tree 			= false;
@@ -58,7 +59,7 @@ namespace Modex
 		}
 
 		void Run();
-	
+
 		std::unordered_set<const RE::TESFile*>			GetModulePluginList(PLUGIN_TYPE a_type);
 		std::vector<const RE::TESFile*> 				GetModulePluginListSorted(PLUGIN_TYPE a_type, SORT_TYPE a_sortType);
 		std::vector<std::string> 						GetSortedListOfPluginNames();
@@ -68,7 +69,7 @@ namespace Modex
 		void 											GenerateNPCClassList();
 		void 											GenerateNPCRaceList();
 		void 											GenerateNPCFactionList();
-		
+
 		[[nodiscard]] inline std::vector<ItemData>& 	GetAddItemList() 	{ return _cache; 			}
 		[[nodiscard]] inline std::vector<CellData>& 	GetTeleportList() 	{ return _cellCache; 		}
 		[[nodiscard]] inline std::vector<NPCData>& 		GetNPCList() 		{ return _npcCache; 		}
