@@ -7,6 +7,7 @@
 #include "include/N/NPC.h"
 #include "include/O/Object.h"
 #include "include/P/Persistent.h"
+#include "include/Q/Quest.h"
 #include "include/T/Teleport.h"
 #include "include/U/UIManager.h"
 #include "include/U/Util.h"
@@ -451,7 +452,7 @@ namespace Modex
 
 		AddSubCategoryHeader(_T("SETTING_MODULE"));
 
-		if (AddSelectionDropdown("SETTING_DEFAULT_SHOW", config.defaultShow, { "Home", "Add Item", "Object", "NPC", "Teleport", "Settings" })) {
+		if (AddSelectionDropdown("SETTING_DEFAULT_SHOW", config.defaultShow, { "Home", "Add Item", "Object", "NPC", "Teleport", "Quest", "Settings" })) {
 			Settings::GetSingleton()->SaveSettings();
 		}
 
@@ -512,6 +513,18 @@ namespace Modex
 				TeleportWindow::GetSingleton()->Load();
 			} else {
 				TeleportWindow::GetSingleton()->Unload();
+			}
+		}
+
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+
+		if (AddToggleButton("SETTING_SHOW_QUEST", config.showQuestMenu)) {
+			Settings::GetSingleton()->SaveSettings();
+
+			if (config.showQuestMenu) {
+				QuestWindow::GetSingleton()->Load();
+			} else {
+				QuestWindow::GetSingleton()->Unload();
 			}
 		}
 	}

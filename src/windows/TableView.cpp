@@ -10,6 +10,7 @@ namespace Modex
 	template class TableView<ItemData>;
 	template class TableView<NPCData>;
 	template class TableView<ObjectData>;
+	template class TableView<QuestData>;
 
 	void AddKitToInventory(const std::unique_ptr<Kit>& a_kit)
 	{
@@ -274,6 +275,31 @@ namespace Modex
 		this->sortByList = {
 			SortType::Plugin,
 			SortType::Name
+		};
+
+		this->BuildPluginList();
+	}
+
+	void TableView<QuestData>::Init()
+	{
+		this->inputSearchMap = {
+			{ SortType::Name, "Name" },
+			{ SortType::EditorID, "Editor ID" },
+			{ SortType::FormID, "Form ID" }
+		};
+
+		this->primaryFilterList = {
+			RE::FormType::Quest
+		};
+
+		this->sortByList = {
+			SortType::Plugin,
+			SortType::FormID,
+			SortType::Name,
+			SortType::EditorID,
+			SortType::QuestStatus,
+			SortType::QuestType,
+			SortType::QuestStage
 		};
 
 		this->BuildPluginList();
@@ -1549,6 +1575,44 @@ namespace Modex
 					delta = 1;
 				}
 
+				break;
+			}
+		case SortType::QuestStatus:
+			if constexpr (!std::is_same<DataType, QuestData>::value) {
+				break;
+			} else {
+				// Sort by status: Completed, Active, Starting, Stopping, Unknown
+				int lhsStatus = 0, rhsStatus = 0;
+
+				if (lhs->IsCompleted()) lhsStatus = 1;
+				else if (lhs->IsActive()) lhsStatus = 2;
+				else if (lhs->IsStarting()) lhsStatus = 3;
+				else if (lhs->IsStopping()) lhsStatus = 4;
+				else lhsStatus = 5;
+
+				if (rhs->IsCompleted()) rhsStatus = 1;
+				else if (rhs->IsActive()) rhsStatus = 2;
+				else if (rhs->IsStarting()) rhsStatus = 3;
+				else if (rhs->IsStopping()) rhsStatus = 4;
+				else rhsStatus = 5;
+
+				delta = (lhsStatus > rhsStatus) ? -1 : (lhsStatus < rhsStatus) ? 1 : 0;
+				break;
+			}
+		case SortType::QuestType:
+			if constexpr (!std::is_same<DataType, QuestData>::value) {
+				break;
+			} else {
+				delta = lhs->GetQuestType().compare(rhs->GetQuestType());
+				break;
+			}
+		case SortType::QuestStage:
+			if constexpr (!std::is_same<DataType, QuestData>::value) {
+				break;
+			} else {
+				auto lhsStage = lhs->GetCurrentStage();
+				auto rhsStage = rhs->GetCurrentStage();
+				delta = (lhsStage > rhsStage) ? -1 : (lhsStage < rhsStage) ? 1 : 0;
 				break;
 			}
 		}

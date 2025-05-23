@@ -89,12 +89,13 @@ namespace Modex
 			float globalFontSize = 16.0f;
 
 			// Modules
-			int defaultShow = 1;  // 0 = Home, 1 = AddItem, 2 = Object, 3 = NPC, 4 = Teleport, 5 = Settings
+			int defaultShow = 1;  // 0 = Home, 1 = AddItem, 2 = Object, 3 = NPC, 4 = Teleport, 5 = Quest, 6 = Settings
 			bool showHomeMenu = false;
 			bool showAddItemMenu = true;
 			bool showObjectMenu = true;
 			bool showNPCMenu = true;
 			bool showTeleportMenu = true;
+			bool showQuestMenu = true;
 
 			// Hiden from User
 			ImVec2 screenScaleRatio;

@@ -38,13 +38,13 @@ namespace Modex
 		static const ImGuiWindowFlags	WINDOW_FLAGS =
 			ImGuiWindowFlags_NoCollapse  			|
 			ImGuiWindowFlags_NoScrollbar 			|
-			ImGuiWindowFlags_NoScrollWithMouse		| 
+			ImGuiWindowFlags_NoScrollWithMouse		|
 			ImGuiWindowFlags_NoCollapse 			|
 			ImGuiWindowFlags_NoTitleBar				|
 			ImGuiWindowFlags_NoResize				|
 			ImGuiWindowFlags_NoMove;
 
-		static const ImGuiWindowFlags	SIDEBAR_FLAGS = 
+		static const ImGuiWindowFlags	SIDEBAR_FLAGS =
 			WINDOW_FLAGS;
 
 		static const ImGuiTableFlags 	TABLE_FLAGS =
@@ -82,6 +82,7 @@ namespace Modex
 			Object,
 			NPC,
 			Teleport,
+			Quest,
 			Settings,
 			kTotal
 		};
@@ -95,6 +96,7 @@ namespace Modex
 		float 			npc_w 		= 0.0f;
 		float 			object_w 	= 0.0f;
 		float 			teleport_w 	= 0.0f;
+		float 			quest_w 	= 0.0f;
 		float 			settings_w 	= 0.0f;
 		float 			exit_w 		= 0.0f;
 
@@ -104,6 +106,7 @@ namespace Modex
 		bool 			b_NPC 		= false;
 		bool 			b_Settings 	= false;
 		bool 			b_Teleport 	= false;
+		bool 			b_Quest 	= false;
 
 		ActiveWindow 	activeWindow = ActiveWindow::Home;
 
@@ -115,6 +118,7 @@ namespace Modex
 			b_NPC 		= (activeWindow == NPC);
 			b_Settings 	= (activeWindow == Settings);
 			b_Teleport 	= (activeWindow == Teleport);
+			b_Quest 	= (activeWindow == Quest);
 		}
 	};
 }

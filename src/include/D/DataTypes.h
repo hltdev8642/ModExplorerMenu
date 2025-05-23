@@ -17,7 +17,7 @@ namespace Modex
 	{
 	private:
 		RE::TESForm* 		TESForm;  // cannot be const (?)
-		
+
 		const std::string 	name;
 		const std::string 	editorid;
 		const std::string 	plugin;
@@ -39,7 +39,7 @@ namespace Modex
 			const_cast<std::string&>(plugin) 	= other.plugin;
 			const_cast<std::string&>(formid) 	= other.formid;
 			const_cast<RE::FormID&>(baseid) 	= other.baseid;
-			
+
 			return *this;
 		}
 
@@ -72,7 +72,7 @@ namespace Modex
 		{}
 
 		virtual ~BaseObject() = default;
-		
+
 		[[nodiscard]] inline RE::TESForm* 				GetForm() const { return TESForm; }
 		[[nodiscard]] inline const std::string 			GetTableID() const { return fmt::format("{:08x}", TableID); }
 		[[nodiscard]] inline const std::string_view 	GetPluginView() const { return plugin; }
@@ -81,7 +81,7 @@ namespace Modex
 		[[nodiscard]] inline const std::string 			GetEditorID() const { return editorid; }
 		[[nodiscard]] inline const std::string_view 	GetEditorIDView() const { return editorid; }
 		[[nodiscard]] inline const std::string 			GetName() const { return name; }
-		[[nodiscard]] inline const std::string_view 	GetNameView() const { 
+		[[nodiscard]] inline const std::string_view 	GetNameView() const {
 			if (!name.empty()) {
 				return name;
 			} else {
@@ -109,7 +109,7 @@ namespace Modex
 			if (GetForm() == nullptr) {
 				return RE::FormType::None;
 			}
-			
+
 			if (GetForm()->GetFormType() == RE::FormType::SoulGem) {
 				return RE::FormType::Misc;
 			} else {
@@ -277,13 +277,98 @@ namespace Modex
 		[[nodiscard]] inline std::string_view 		GetEditorID() const { return editorid; }  // TODO: separate these.
 
 		CellData(std::string filename, std::string space, std::string zone, std::string cellName, std::string editorid, const RE::TESFile* mod = nullptr) :
-			filename(filename), 
+			filename(filename),
 			space(space),
-			 zone(zone), 
-			 cellName(cellName), 
-			 editorid(editorid), 
-			 mod(mod) 
+			 zone(zone),
+			 cellName(cellName),
+			 editorid(editorid),
+			 mod(mod)
 		{}
+	};
+
+	class QuestData : public BaseObject
+	{
+	public:
+		QuestData(RE::TESForm* a_form, ImGuiID a_id = 0, RE::FormID a_refID = 0) :
+			BaseObject{ a_form, a_id, a_refID } {}
+
+		[[nodiscard]] inline std::uint16_t GetCurrentStage() const
+		{
+			if (auto quest = GetForm()->As<RE::TESQuest>()) {
+				return quest->currentStage;
+			}
+			return 0;
+		}
+
+		[[nodiscard]] inline bool IsCompleted() const
+		{
+			if (auto quest = GetForm()->As<RE::TESQuest>()) {
+				return quest->IsCompleted();
+			}
+			return false;
+		}
+
+		[[nodiscard]] inline bool IsActive() const
+		{
+			if (auto quest = GetForm()->As<RE::TESQuest>()) {
+				return quest->IsActive();
+			}
+			return false;
+		}
+
+		[[nodiscard]] inline bool IsStarting() const
+		{
+			if (auto quest = GetForm()->As<RE::TESQuest>()) {
+				return quest->IsStarting();
+			}
+			return false;
+		}
+
+		[[nodiscard]] inline bool IsStopping() const
+		{
+			if (auto quest = GetForm()->As<RE::TESQuest>()) {
+				return quest->IsStopping();
+			}
+			return false;
+		}
+
+		[[nodiscard]] inline std::string GetQuestType() const
+		{
+			if (auto quest = GetForm()->As<RE::TESQuest>()) {
+				// Convert the enum to an integer for comparison
+				uint8_t questType = quest->data.questType.underlying();
+
+				// Compare with the underlying values
+				if (questType == 0) {  // kNone
+					return "None";
+				} else if (questType == 1) {  // kMainQuest
+					return "Main Quest";
+				} else if (questType == 2) {  // kMagesGuild
+					return "Mages Guild";
+				} else if (questType == 3) {  // kThievesGuild
+					return "Thieves Guild";
+				} else if (questType == 4) {  // kDarkBrotherhood
+					return "Dark Brotherhood";
+				} else if (questType == 5) {  // kCompanionsQuest
+					return "Companions";
+				} else if (questType == 6) {  // kDaedric
+					return "Daedric";
+				} else if (questType == 7) {  // kSideQuest
+					return "Side Quest";
+				} else if (questType == 8) {  // kCivilWar
+					return "Civil War";
+				} else if (questType == 9) {  // kDLC01_Vampire
+					return "Dawnguard";
+				} else if (questType == 10) {  // kDLC02_Dragonborn
+					return "Dragonborn";
+				} else if (questType == 11) {  // kMiscellaneous
+					return "Miscellaneous";
+				} else {
+					return "Other";
+				}
+			}
+			return "Unknown";
+		}
 	};
 
 	struct KitBase
@@ -328,7 +413,7 @@ namespace Modex
 		std::string 				name; // unique?
 		std::string					collection;
 		std::string					desc;
-		
+
 		bool						clearEquipped = true;
 		bool						readOnly = false;
 
@@ -352,7 +437,7 @@ namespace Modex
 	static std::shared_ptr<KitItem> CreateKitItem(const DataType& a_item)
 	{
 		auto new_item = std::make_shared<KitItem>();
-		
+
 		new_item->plugin 	= a_item.GetPluginName();
 		new_item->name 		= a_item.GetName();
 		new_item->editorid 	= a_item.GetEditorID();

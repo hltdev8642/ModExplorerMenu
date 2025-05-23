@@ -21,6 +21,8 @@ namespace Modex
 		static void ClearEquipped();
 		static void ClearInventory();
 		static void ReadBook(std::string a_bookFormID);
+		static void ExecuteQuestCommand(std::string a_command, std::string a_questFormID = "", int a_stage = -1, int a_value = -1);
+		static void ExecuteQuestCommandWithMessageBox(std::string a_command, std::string a_questFormID = "", int a_stage = -1, int a_value = -1);
 		static void BringNPC(RE::FormID a_refID, bool a_closeMenu = false);
 		static void GotoNPC(RE::FormID a_refID, bool a_closeMenu = false);
 		static void PlaceAtMe(std::string a_itemFormID, int a_count = 1);

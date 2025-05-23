@@ -102,8 +102,11 @@ namespace Modex
 			Race,
 			Gender,
 			Class,
-			Level
-
+			Level,
+			// Quest-specific sort types
+			QuestStatus,
+			QuestType,
+			QuestStage
 		};
 
 		// TODO Localation
@@ -160,6 +163,12 @@ namespace Modex
 				return "Class";
 			case SortType::Level:
 				return "Level";
+			case SortType::QuestStatus:
+				return "Status";
+			case SortType::QuestType:
+				return "Quest Type";
+			case SortType::QuestStage:
+				return "Stage";
 			default:
 				return "Unknown";
 			}

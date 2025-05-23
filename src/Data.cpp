@@ -492,11 +492,88 @@ namespace Modex
 			GenerateCellList();
 		}
 
+		if (config.showQuestMenu) {
+			GenerateQuestList();
+		}
+
 		for (auto& file : _modList) {
 			std::string modName = ValidateTESFileName(file);
 			_modListSorted.insert(modName);
 		}
 
 		Utils::SetDescriptionFrameworkInterface(DescriptionFrameworkAPI::GetDescriptionFrameworkInterface001());
+	}
+
+	template <class T>
+	void Data::CacheQuests(RE::TESDataHandler* a_data)
+	{
+		for (RE::TESForm* form : a_data->GetFormArray<T>()) {
+			const RE::TESFile* mod = form->GetFile(0);
+
+			if (!mod)
+				continue;
+
+			_questCache.push_back(QuestData{ form });
+
+			// Add mod file to list
+			if (!_questModList.contains(mod)) {
+				_questModList.insert(mod);
+				_modList.insert(mod);
+			}
+
+			// Set quest flag for this mod
+			if (_itemListModFormTypeMap.contains(mod)) {
+				if (_itemListModFormTypeMap[mod].quest == false)
+					_itemListModFormTypeMap[mod].quest = form->GetFormType() == RE::FormType::Quest;
+			} else {
+				ModFileItemFlags flags;
+				flags.quest = form->GetFormType() == RE::FormType::Quest;
+				_itemListModFormTypeMap[mod] = flags;
+			}
+		}
+	}
+
+	void Data::GenerateQuestList()
+	{
+		_questCache.clear();
+
+		if (auto dataHandler = RE::TESDataHandler::GetSingleton()) {
+			CacheQuests<RE::TESQuest>(dataHandler);
+		}
+	}
+
+	void Data::SortAddItemList()
+	{
+		// Sort the item list based on the current sort settings
+		Settings::Config& config = Settings::GetSingleton()->GetConfig();
+
+		// Sort by name (alphabetically)
+		if (config.modListSort == 0) {
+			std::sort(_cache.begin(), _cache.end(), [](const ItemData& a, const ItemData& b) {
+				return a.GetName() < b.GetName();
+			});
+		}
+		// Sort by load order (ascending)
+		else if (config.modListSort == 1) {
+			std::sort(_cache.begin(), _cache.end(), [](const ItemData& a, const ItemData& b) {
+				const auto* fileA = a.GetForm()->GetFile(0);
+				const auto* fileB = b.GetForm()->GetFile(0);
+				if (fileA && fileB) {
+					return fileA->GetCompileIndex() < fileB->GetCompileIndex();
+				}
+				return false;
+			});
+		}
+		// Sort by load order (descending)
+		else if (config.modListSort == 2) {
+			std::sort(_cache.begin(), _cache.end(), [](const ItemData& a, const ItemData& b) {
+				const auto* fileA = a.GetForm()->GetFile(0);
+				const auto* fileB = b.GetForm()->GetFile(0);
+				if (fileA && fileB) {
+					return fileA->GetCompileIndex() > fileB->GetCompileIndex();
+				}
+				return false;
+			});
+		}
 	}
 }

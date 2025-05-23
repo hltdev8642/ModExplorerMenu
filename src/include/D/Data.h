@@ -19,6 +19,7 @@ namespace Modex
 			NPC,
 			OBJECT,
 			CELL,
+			QUEST,
 		};
 
 		enum SORT_TYPE
@@ -50,6 +51,7 @@ namespace Modex
 			bool 	furniture 		= false;
 			bool	flora			= false;
 			bool	cell			= false;
+			bool	quest			= false;  // Added for QUST items
 		};
 
 		static inline Data* GetSingleton()
@@ -74,6 +76,7 @@ namespace Modex
 		[[nodiscard]] inline std::vector<CellData>& 	GetTeleportList() 	{ return _cellCache; 		}
 		[[nodiscard]] inline std::vector<NPCData>& 		GetNPCList() 		{ return _npcCache; 		}
 		[[nodiscard]] inline std::vector<ObjectData>& 	GetObjectList() 	{ return _staticCache;		}
+		[[nodiscard]] inline std::vector<QuestData>& 	GetQuestList() 		{ return _questCache;		}
 		[[nodiscard]] inline std::set<std::string> 		GetNPCClassList() 	{ return _npcClassList; 	}
 		[[nodiscard]] inline std::set<std::string> 		GetNPCRaceList() 	{ return _npcRaceList; 		}
 		[[nodiscard]] inline std::set<std::string> 		GetNPCFactionList() { return _npcFactionList; 	}
@@ -82,6 +85,7 @@ namespace Modex
 		void 											GenerateNPCList();
 		void 											GenerateObjectList();
 		void 											GenerateCellList();
+		void 											GenerateQuestList();
 
 		void SortAddItemList();
 
@@ -91,6 +95,7 @@ namespace Modex
 		std::vector<NPCData> 							_npcCache;
 		std::vector<RE::TESObjectREFR*> 				_npcRefIds;
 		std::vector<ObjectData> 						_staticCache;
+		std::vector<QuestData> 							_questCache;
 		std::unordered_set<const RE::TESFile*> 			_modList;
 		std::set<std::string> 							_modListSorted;
 
@@ -98,6 +103,7 @@ namespace Modex
 		std::unordered_set<const RE::TESFile*> 			_npcModList;
 		std::unordered_set<const RE::TESFile*> 			_staticModList;
 		std::unordered_set<const RE::TESFile*> 			_cellModList;
+		std::unordered_set<const RE::TESFile*> 			_questModList;
 
 		std::set<std::string> 							_npcClassList;
 		std::set<std::string> 							_npcRaceList;
@@ -115,6 +121,9 @@ namespace Modex
 
 		template <class T>
 		void CacheStaticObjects(RE::TESDataHandler* a_data);
+
+		template <class T>
+		void CacheQuests(RE::TESDataHandler* a_data);
 
 		void CacheCells(const RE::TESFile* a_file, std::vector<CellData>& a_map);
 		void MergeNPCRefIds(std::shared_ptr<std::unordered_map<RE::FormID, RE::FormID>> npc_ref_map);

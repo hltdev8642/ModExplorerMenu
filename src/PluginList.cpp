@@ -57,6 +57,8 @@ namespace Modex
 			return _staticModList;
 		case PLUGIN_TYPE::CELL:
 			return _cellModList;
+		case PLUGIN_TYPE::QUEST:
+			return _questModList;
 		case PLUGIN_TYPE::ALL:
 			return _modList;
 		default:
@@ -94,6 +96,9 @@ namespace Modex
 			break;
 		case PLUGIN_TYPE::CELL:
 			safeCopy(_cellModList);
+			break;
+		case PLUGIN_TYPE::QUEST:
+			safeCopy(_questModList);
 			break;
 		case PLUGIN_TYPE::ALL:
 			safeCopy(_modList);
@@ -178,6 +183,8 @@ namespace Modex
 			return _itemListModFormTypeMap[a_plugin].npc;
 		case RE::FormType::Cell:
 			return _itemListModFormTypeMap[a_plugin].cell;
+		case RE::FormType::Quest:
+			return _itemListModFormTypeMap[a_plugin].quest;
 		default:
 			logger::error("[PluginList] Invalid FormType argument passed to IsFormTypeInPlugin");
 			return false;
@@ -262,6 +269,11 @@ namespace Modex
 					break;
 				case RE::FormType::Spell:
 					if (pluginFormTypeFlag.spell) {
+						modList.push_back(modName);
+					}
+					break;
+				case RE::FormType::Quest:
+					if (pluginFormTypeFlag.quest) {
 						modList.push_back(modName);
 					}
 					break;

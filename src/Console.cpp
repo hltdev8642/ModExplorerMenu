@@ -1,5 +1,7 @@
 #include "include/C/Console.h"
 #include "include/M/Menu.h"
+#include "include/U/UIManager.h"
+#include <sstream>  // for std::istringstream
 
 namespace Modex
 {
@@ -433,6 +435,269 @@ namespace Modex
 	{
 		if (IsPlayerLoaded()) [[likely]] {
 			AddToQueue("player.addspell " + std::format("{:08x}", a_spellFormID));
+		}
+	}
+
+	// Execute a quest-related console command
+	// @param a_command: The command to execute (e.g., "setstage", "completequest", etc.)
+	// @param a_questFormID: The form ID of the quest (optional for some commands)
+	// @param a_stage: The stage value (optional, used for setstage and SetObjectiveCompleted)
+	// @param a_value: Additional value (optional, used for SetObjectiveCompleted)
+	void Console::ExecuteQuestCommand(std::string a_command, std::string a_questFormID, int a_stage, int a_value)
+	{
+		if (IsPlayerLoaded()) [[likely]] {
+			std::string cmd;
+
+			// Commands that don't require a quest ID
+			if (a_command == "caqs" || a_command == "saq" || a_command == "showquesttargets" || a_command == "sqo") {
+				cmd = a_command;
+			}
+			// Commands that require only a quest ID
+			else if (a_command == "completequest" || a_command == "getstage" || a_command == "movetoqt" ||
+					 a_command == "resetquest" || a_command == "sqv" || a_command == "sqs") {
+				if (!a_questFormID.empty()) {
+					cmd = a_command + " " + a_questFormID;
+				} else {
+					logger::warn("Quest command {} requires a quest ID", a_command);
+					return;
+				}
+			}
+			// Commands that require a quest ID and a stage
+			else if (a_command == "setstage") {
+				if (!a_questFormID.empty() && a_stage >= 0) {
+					cmd = a_command + " " + a_questFormID + " " + std::to_string(a_stage);
+				} else {
+					logger::warn("setstage command requires a quest ID and stage value");
+					return;
+				}
+			}
+			// Commands that require a quest ID, stage, and value
+			else if (a_command == "SetObjectiveCompleted") {
+				if (!a_questFormID.empty() && a_stage >= 0 && a_value >= 0) {
+					cmd = a_command + " " + a_questFormID + " " + std::to_string(a_stage) + " " + std::to_string(a_value);
+				} else {
+					logger::warn("SetObjectiveCompleted command requires a quest ID, stage, and value (0 or 1)");
+					return;
+				}
+			}
+			// Commands that require a quest ID, variable ID, and desired value
+			else if (a_command == "setpqv") {
+				if (!a_questFormID.empty() && a_stage >= 0 && a_value >= 0) {
+					cmd = a_command + " " + a_questFormID + " " + std::to_string(a_stage) + " " + std::to_string(a_value);
+				} else {
+					logger::warn("setpqv command requires a quest form ID, variable ID, and desired value");
+					return;
+				}
+			}
+			else {
+				logger::warn("Unknown quest command: {}", a_command);
+				return;
+			}
+
+			AddToQueue(cmd);
+		}
+	}
+
+	// Execute a quest-related console command and display the result in a message box
+	// @param a_command: The command to execute (e.g., "setstage", "completequest", etc.)
+	// @param a_questFormID: The form ID of the quest (optional for some commands)
+	// @param a_stage: The stage value (optional, used for setstage and SetObjectiveCompleted)
+	// @param a_value: Additional value (optional, used for SetObjectiveCompleted)
+	void Console::ExecuteQuestCommandWithMessageBox(std::string a_command, std::string a_questFormID, int a_stage, int a_value)
+	{
+		if (IsPlayerLoaded()) [[likely]] {
+			std::string cmd;
+			std::string displayCommand;
+			std::string questName = "Unknown Quest";
+
+			// Get the quest name if we have a form ID
+			if (!a_questFormID.empty()) {
+				if (auto form = RE::TESForm::LookupByID(static_cast<RE::FormID>(std::stoul(a_questFormID, nullptr, 16)))) {
+					if (auto quest = form->As<RE::TESQuest>()) {
+						questName = quest->GetName();
+					}
+				}
+			}
+
+			// Commands that don't require a quest ID
+			if (a_command == "caqs" || a_command == "saq" || a_command == "showquesttargets" || a_command == "sqo") {
+				cmd = a_command;
+				displayCommand = a_command;
+			}
+			// Commands that require only a quest ID
+			else if (a_command == "completequest" || a_command == "getstage" || a_command == "movetoqt" ||
+					 a_command == "resetquest" || a_command == "sqv" || a_command == "sqs") {
+				if (!a_questFormID.empty()) {
+					cmd = a_command + " " + a_questFormID;
+					displayCommand = a_command + " " + questName + " [" + a_questFormID + "]";
+				} else {
+					logger::warn("Quest command {} requires a quest ID", a_command);
+					return;
+				}
+			}
+			// Commands that require a quest ID and a stage
+			else if (a_command == "setstage") {
+				if (!a_questFormID.empty() && a_stage >= 0) {
+					cmd = a_command + " " + a_questFormID + " " + std::to_string(a_stage);
+					displayCommand = a_command + " " + questName + " [" + a_questFormID + "] " + std::to_string(a_stage);
+				} else {
+					logger::warn("setstage command requires a quest ID and stage value");
+					return;
+				}
+			}
+			// Commands that require a quest ID, stage, and value
+			else if (a_command == "SetObjectiveCompleted") {
+				if (!a_questFormID.empty() && a_stage >= 0 && a_value >= 0) {
+					cmd = a_command + " " + a_questFormID + " " + std::to_string(a_stage) + " " + std::to_string(a_value);
+					displayCommand = a_command + " " + questName + " [" + a_questFormID + "] " + std::to_string(a_stage) + " " + std::to_string(a_value);
+				} else {
+					logger::warn("SetObjectiveCompleted command requires a quest ID, stage, and value (0 or 1)");
+					return;
+				}
+			}
+			// Commands that require a quest ID, variable ID, and desired value
+			else if (a_command == "setpqv") {
+				if (!a_questFormID.empty() && a_stage >= 0 && a_value >= 0) {
+					cmd = a_command + " " + a_questFormID + " " + std::to_string(a_stage) + " " + std::to_string(a_value);
+					displayCommand = a_command + " " + questName + " [" + a_questFormID + "] " + std::to_string(a_stage) + " " + std::to_string(a_value);
+				} else {
+					logger::warn("setpqv command requires a quest form ID, variable ID, and desired value");
+					return;
+				}
+			}
+			else {
+				logger::warn("Unknown quest command: {}", a_command);
+				return;
+			}
+
+			// Create a message to display in the message box
+			std::string message = "Command: " + displayCommand + "\n\n";
+
+			// Execute the command directly to capture its output
+			const auto scriptFactory = RE::IFormFactory::GetConcreteFormFactoryByType<RE::Script>();
+			const auto script = scriptFactory ? scriptFactory->Create() : nullptr;
+
+			if (script) {
+				// Execute the command directly
+				script->SetCommand(cmd);
+				script->CompileAndRun(nullptr);
+
+				// Get the console output from the ConsoleLog
+				if (auto consoleLog = RE::ConsoleLog::GetSingleton()) {
+					// Get the full console output from the buffer
+					std::string consoleOutput;
+
+					// First try to get the full buffer content
+					if (consoleLog->buffer.c_str() && consoleLog->buffer.length() > 0) {
+						consoleOutput = consoleLog->buffer.c_str();
+					} else {
+						// Fall back to lastMessage if buffer is empty
+						consoleOutput = consoleLog->lastMessage;
+					}
+
+					// Prepare the header part of the message based on command type
+					std::string headerMessage = "Command: " + displayCommand + "\n\n";
+
+					if (a_command == "getstage") {
+						// For getstage, the output is typically just a number
+						headerMessage += "Current stage: ";
+					} else if (a_command == "sqs") {
+						// For sqs (Show Quest Stages), the output is a list of stages
+						headerMessage += "Quest stages for " + questName + ":\n";
+					} else if (a_command == "sqv") {
+						// For sqv (Show Quest Variables), the output is a list of variables
+						headerMessage += "Quest variables for " + questName + ":\n";
+					} else if (a_command == "showquesttargets") {
+						// For showquesttargets, the output is a list of quest targets
+						headerMessage += "Active quest targets:\n";
+					} else if (a_command == "sqo") {
+						// For sqo (Show Quest Objectives), the output is a list of objectives
+						headerMessage += "Quest objectives:\n";
+					} else {
+						// For other commands, just show the raw output
+						headerMessage += "Result:\n";
+					}
+
+					// Split the console output into chunks of 80 characters or less
+					// We'll try to split at newlines when possible
+					std::vector<std::string> outputChunks;
+
+					// First, split by newlines
+					std::istringstream stream(consoleOutput);
+					std::string line;
+					std::string currentChunk = headerMessage;
+
+					while (std::getline(stream, line)) {
+						// If adding this line would make the chunk too long, start a new chunk
+						if (currentChunk.length() + line.length() + 1 > 80) {
+							// If the current chunk is just the header, we need to split the line
+							if (currentChunk == headerMessage) {
+								// Split the line into smaller chunks
+								for (size_t i = 0; i < line.length(); i += 80) {
+									std::string subLine = line.substr(i, 80);
+									if (i == 0) {
+										// First chunk includes the header
+										outputChunks.push_back(currentChunk + subLine);
+									} else {
+										// Subsequent chunks are just the line parts
+										outputChunks.push_back(subLine);
+									}
+								}
+								currentChunk = "";
+							} else {
+								// Add the current chunk to the output
+								outputChunks.push_back(currentChunk);
+								// Start a new chunk with this line
+								currentChunk = line;
+							}
+						} else {
+							// Add the line to the current chunk
+							if (currentChunk != headerMessage) {
+								currentChunk += "\n";
+							}
+							currentChunk += line;
+						}
+					}
+
+					// Add the last chunk if it's not empty
+					if (!currentChunk.empty()) {
+						outputChunks.push_back(currentChunk);
+					}
+
+					// If we have no chunks (unlikely), add a default message
+					if (outputChunks.empty()) {
+						outputChunks.push_back(headerMessage + "No output");
+					}
+
+					// Show the message boxes with the command result
+					SKSE::GetTaskInterface()->AddTask([outputChunks]() {
+						// Show each chunk in a separate message box
+						for (const auto& chunk : outputChunks) {
+							RE::DebugMessageBox(chunk.c_str());
+						}
+					});
+				} else {
+					message = "Could not get console output.";
+
+					// Show a message box with the error
+					SKSE::GetTaskInterface()->AddTask([message]() {
+						RE::DebugMessageBox(message.c_str());
+					});
+				}
+
+				delete script;
+			} else {
+				message += "Failed to create script using scriptFactory.";
+			}
+
+			// Message box is already shown in the console output handling code
+
+			// For action commands, also queue them for execution
+			if (a_command == "completequest" || a_command == "movetoqt" || a_command == "resetquest" || a_command == "setstage" || a_command == "SetObjectiveCompleted" || a_command == "setpqv") {
+				// Add the command to the queue
+				Console::AddToQueue(cmd);
+				Console::StartProcessThread();
+			}
 		}
 	}
 

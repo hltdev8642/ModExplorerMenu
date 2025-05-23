@@ -1,0 +1,25 @@
+caqs - Complete all Stages of every quest.
+
+completequest <QuestID>  - Complete a quest.
+
+getstage <QuestID> - Used to get the current quest stage for quest (use ShowQuestTargets for IDs).
+
+movetoqt <QuestID> - Move to quest target.
+
+resetquest <QuestID>  -  Completely resets the given quest.
+
+saq - Starts every quest (may cause crash).
+
+SetObjectiveCompleted <QuestID> <stage> <1 to set, 0 to unset> - Used to set the quest stage as being completed or uncompleted.
+
+setstage <quest id> <stage value> - Used to set the quest stage (useful for bugged quests).
+
+showquesttargets - Shows all current quest IDs.
+
+setpqv <quest form ID> <quest variable ID> <desired variable> - Attempts to modify a quest variable to the desired value.
+
+sqv <quest id> - Displays a list of all variables used by <quest id>.
+
+sqs <quest id> - Used to display all the stages of a quest.
+
+sqo - Shows a human friendly list of active and completed quest objectives for all currently active quests.

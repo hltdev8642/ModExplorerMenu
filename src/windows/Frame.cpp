@@ -5,6 +5,7 @@
 #include "include/M/Menu.h"
 #include "include/N/NPC.h"
 #include "include/O/Object.h"
+#include "include/Q/Quest.h"
 #include "include/S/Settings.h"
 #include "include/T/Teleport.h"
 #include "include/U/UserSettings.h"
@@ -121,6 +122,7 @@ namespace Modex
 				SideBarImage object_image = { reinterpret_cast<ImTextureID>(GraphicManager::image_library["IconObject"].texture), ImVec2(32.0f, 32.0f) };
 				SideBarImage npc_image = { reinterpret_cast<ImTextureID>(GraphicManager::image_library["IconNPC"].texture), ImVec2(32.0f, 32.0f) };
 				SideBarImage teleport_image = { reinterpret_cast<ImTextureID>(GraphicManager::image_library["IconTeleport"].texture), ImVec2(32.0f, 32.0f) };
+				SideBarImage quest_image = { reinterpret_cast<ImTextureID>(GraphicManager::image_library["IconAddItem"].texture), ImVec2(32.0f, 32.0f) }; // Reusing IconAddItem for now
 				SideBarImage settings_image = { reinterpret_cast<ImTextureID>(GraphicManager::image_library["IconSettings"].texture), ImVec2(32.0f, 32.0f) };
 				SideBarImage exit_image = { reinterpret_cast<ImTextureID>(GraphicManager::image_library["IconExit"].texture), ImVec2(32.0f, 32.0f) };
 
@@ -190,6 +192,19 @@ namespace Modex
 					ExpandButton();
 				}
 
+				if (config.showQuestMenu) {
+					if (ImGui::SidebarButton("Quest", activeWindow == ActiveWindow::Quest, quest_image.texture, quest_image.size, ImVec2(button_width, button_height), quest_w)) {
+						activeWindow = ActiveWindow::Quest;
+						if (QuestWindow::GetSingleton()->GetQuestList().empty()) {
+							QuestWindow::GetSingleton()->Refresh();
+						}
+
+						QuestWindow::GetSingleton()->BuildPluginList();
+					}
+
+					ExpandButton();
+				}
+
 				if (ImGui::SidebarButton("Settings", activeWindow == ActiveWindow::Settings, settings_image.texture, settings_image.size, ImVec2(button_width, button_height), settings_w)) {
 					activeWindow = ActiveWindow::Settings;
 				}
@@ -242,6 +257,9 @@ namespace Modex
 			case ActiveWindow::Teleport:
 				TeleportWindow::GetSingleton()->Draw(sidebar_w);
 				break;
+			case ActiveWindow::Quest:
+				QuestWindow::GetSingleton()->Draw(sidebar_w);
+				break;
 			case ActiveWindow::Settings:
 				SettingsWindow::Draw();
 				break;
@@ -268,6 +286,7 @@ namespace Modex
 		NPCWindow::GetSingleton()->Init(Frame::activeWindow == ActiveWindow::NPC);
 		TeleportWindow::GetSingleton()->Init(Frame::activeWindow == ActiveWindow::Teleport);
 		ObjectWindow::GetSingleton()->Init(Frame::activeWindow == ActiveWindow::Object);
+		QuestWindow::GetSingleton()->Init(Frame::activeWindow == ActiveWindow::Quest);
 
 		Blacklist::GetSingleton()->Init();
 
